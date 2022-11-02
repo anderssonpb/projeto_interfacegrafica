@@ -1,28 +1,86 @@
 // Load Leaflet map
 
-function initDemoMap() {
 
-    // Old baselayers
-    /*
-    var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, ' +
-        'NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
-    });
-    var OpenStreetMap_Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    });
-    var Esri_DarkGreyCanvas = L.tileLayer(
-        "https://{s}.sm.mapstack.stamen.com/" +
-        "(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/" +
-        "{z}/{x}/{y}.png",
-        {
-            attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, ' +
-            'NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community'
+const DATA_FILES = {
+    "1": {
+        temperature: temperature1,
+        salinity: salinity1,
+        wind: "data/netcdf/wind1.json"
+    },
+    "2": {
+        temperature: temperature2,
+        salinity: salinity2,
+        wind: "data/netcdf/wind2.json"
+    },
+    "3": {
+        temperature: temperature3,
+        salinity: salinity3,
+        wind: "data/netcdf/wind3.json"
+    },
+    "4": {
+        temperature: temperature4,
+        salinity: salinity4,
+        wind: "data/netcdf/wind4.json"
+    },
+    "5": {
+        temperature: temperature5,
+        salinity: salinity5,
+        wind: "data/netcdf/wind5.json"
+    },
+    "6": {
+        temperature: temperature6,
+        salinity: salinity6,
+        wind: "data/netcdf/wind6.json"
+    },
+    "7": {
+        temperature: temperature7,
+        salinity: salinity7,
+        wind: "data/netcdf/wind7.json"
+    },
+}
+
+
+
+
+const calculateWeekDays = () => {
+    const week = {};
+    let currentDate = moment();
+    for (let idx=7; idx > 0; idx--) {
+        week[idx] = {
+            weekDay: currentDate.format("dddd"),
+            weekDate: currentDate.format("DD/MM/yyyy")
         }
-    );
+        currentDate.subtract(1, "days");
+    }
+    return week;
+}
 
-    */
+const addDaySelectionWidget = (map) => {
+    const dataSelect = L.control({ position: 'bottomcenter' });
+    dataSelect.onAdd = function () {
+
+        const div = L.DomUtil.create('div', 'select-div');
+
+        const week = calculateWeekDays();
+
+        div.innerHTML = '<section id="main"><div class="slider clearfix">\n' +
+            '    <input type="hidden" id="date-range-selector" name="DispenseROPTrigger" value="7" />\n' +
+            `    <label data-value="1">${week["1"].weekDay}<br/>${week["1"].weekDate}</label>\n` +
+            `    <label data-value="2">${week["2"].weekDay}<br/>${week["2"].weekDate}</label>\n` +
+            `    <label data-value="3">${week["3"].weekDay}<br/>${week["3"].weekDate}</label>\n` +
+            `    <label data-value="4">${week["4"].weekDay}<br/>${week["4"].weekDate}</label>\n` +
+            `    <label data-value="5">${week["5"].weekDay}<br/>${week["5"].weekDate}</label>\n` +
+            `    <label data-value="6">${week["6"].weekDay}<br/>${week["6"].weekDate}</label>\n` +
+            `    <label data-value="7">${week["7"].weekDay}<br/>${week["7"].weekDate}</label>\n` +
+            '  </div></section>';
+
+        return div;
+    };
+
+    dataSelect.addTo(map);
+}
+
+function initDemoMap() {
 
     // New baselayers
     var Esri_DarkGreyCanvas = L.esri.basemapLayer('DarkGray')
@@ -137,25 +195,7 @@ function initDemoMap() {
 
     legendSalinidade.addTo(map);
 
-    var dataSelect = L.control({ position: 'bottomcenter' });
-    dataSelect.onAdd = function (map) {
-
-        var div = L.DomUtil.create('div', 'select-div');
-
-        div.innerHTML = '<section id="main"><div class="slider clearfix">\n' +
-            '    <input type="hidden" id="date-range-selector" name="DispenseROPTrigger" value="2" />\n' +
-            '    <label data-value="2">Segunda-feira<br/>15/03/2021</label>\n' +
-            '    <label data-value="3">Terça-feira<br/>16/03/2021</label>\n' +
-            '    <label data-value="4">Quarta-feira<br/>17/03/2021</label>\n' +
-            '    <label data-value="5">Quinta-feira<br/>18/03/2021</label>\n' +
-            '    <label data-value="6">Sexta-feira<br/>19/03/2021</label>\n' +
-            '    <label data-value="7">Sábado<br/>20/03/2021</label>\n' +
-            '  </div></section>';
-
-        return div;
-    };
-
-    dataSelect.addTo(map);
+    addDaySelectionWidget(map);
 
     return {
         map: map,
@@ -166,8 +206,9 @@ function initDemoMap() {
 
 }
 
-temperature = temperature15;
-salinity = salinity15;
+temperature = DATA_FILES[7].temperature;
+salinity = DATA_FILES[7].salinity;
+
 
 // leaflet-velocity layer
 var mapStuff = initDemoMap();
@@ -176,8 +217,10 @@ var layerControl = mapStuff.layerControl;
 var idw = mapStuff.idw;
 var idw2 = mapStuff.idw2;
 
+
+
 // load data (u, v grids) from somewhere (e.g. https://github.com/danwild/wind-js-server)
-$.getJSON('data/netcdf/wind.json', function (data) {
+$.getJSON(DATA_FILES[7].wind, function (data) {
 
     velocityLayer = L.velocityLayer({
         displayValues: true,
@@ -198,22 +241,17 @@ $.getJSON('data/netcdf/wind.json', function (data) {
 
 });
 
+
+
+
+
+
 function updateData(value) {
-    if (value == 1) {
-        temperature = temperature15;
-        salinity = salinity15;
-        wind = 'data/netcdf/wind.json';
-    } else {
-        if (value == 2) {
-            temperature = temperature16;
-            salinity = salinity16;
-            wind = 'data/netcdf/wind16.json';
-        } else {
-            temperature = temperature17;
-            salinity = salinity17;
-            wind = 'data/netcdf/wind17.json';
-        }
-    }
+
+    temperature = DATA_FILES[value].temperature;
+    salinity = DATA_FILES[value].salinity;
+    wind = DATA_FILES[value].wind;
+
 
     layerControl.removeLayer(idw);
     layerControl.removeLayer(idw2);

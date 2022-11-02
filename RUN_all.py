@@ -14,6 +14,7 @@ from wind_NF_to_Js import save_wind,RUN_wind
 
 input_folder = r'.\andersson\data\input\*.nc'
 output_folder = r'.\andersson\data\output'
+
 for file_path in glob.glob(input_folder):
     #dataset = read_dataset(file_path)
     #base_vals = get_base_variables(dataset)
@@ -23,3 +24,5 @@ for file_path in glob.glob(input_folder):
     RUN_temp(file_path,output_folder,'temperature_'+data+'.js',True)
     RUN_sal(file_path,output_folder,'salinity_'+data+'.js',True)
     RUN_wind(file_path,output_folder,'wind_'+data+'.js',True)
+
+     
